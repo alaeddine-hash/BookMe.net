@@ -1,5 +1,6 @@
 ﻿using BookMe.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 
 namespace BookMe.Controllers
@@ -7,16 +8,24 @@ namespace BookMe.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly AppDbContext _context;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, AppDbContext context)
         {
             _logger = logger;
+            _context = context;
         }
+            public async Task<IActionResult> Index()
+            {
+                var livres = _context.Livres
+                    .Include(l => l.AuteurLivres!)
+                    .ThenInclude(al => al!.Auteur)
+                    .Include(l => l.LivreThemes)
+                    .ThenInclude(lt => lt!.Theme);
 
-        public IActionResult Index()
-        {
-            return View();
-        }
+                return View(await livres.ToListAsync());
+            }
+        
 
         public IActionResult Privacy()
         {

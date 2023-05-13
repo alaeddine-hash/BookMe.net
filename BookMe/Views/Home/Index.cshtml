@@ -1,8 +1,28 @@
-﻿@{
+﻿@model IEnumerable<BookMe.Models.Livre>
+
+@{
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container text-center my-4">
+    <h1 class="display-4">Welcome to BookMe</h1>
+    <p>Explore our diverse collection of books!</p>
+
+    <div class="row">
+        @foreach (var livre in Model)
+        {
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card h-100">
+                    <img class="card-img-top" src="@livre.ImagePath" alt="Card image cap">
+                    <div class="card-body">
+                        <h5 class="card-title">@livre.Name</h5>
+                        <p class="card-text">@livre.Description</p>
+                    </div>
+                    <div class="card-footer">
+                        <a href="@Url.Action("Details", "Livres", new { id = livre.LivreId })" class="btn btn-primary">View Details</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
 </div>
