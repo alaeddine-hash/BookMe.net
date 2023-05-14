@@ -1,4 +1,4 @@
-﻿@model IEnumerable<BookMe.Models.Livre>
+﻿@model BookMe.Models.LivreThemeViewModel
 
 @{
     ViewData["Title"] = "Home Page";
@@ -9,20 +9,27 @@
     <p>Explore our diverse collection of books!</p>
 
     <div class="row">
-        @foreach (var livre in Model)
-        {
-            <div class="col-lg-4 col-md-6 mb-4">
-                <div class="card h-100">
-                    <img class="card-img-top" src="@livre.ImagePath" alt="Card image cap">
-                    <div class="card-body">
-                        <h5 class="card-title">@livre.Name</h5>
-                        <p class="card-text">@livre.Description</p>
+        <div class="col-md-3">
+            <partial name="_ThemesPartial" model="@Model.Themes" />
+        </div>
+        <div class="col-md-9">
+            <div class="row">
+                @foreach (var livre in Model.Livres)
+                {
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="card h-100">
+                            <img class="card-img-top" src="@livre.ImagePath" alt="Card image cap">
+                            <div class="card-body">
+                                <h5 class="card-title">@livre.Name</h5>
+                                <p class="card-text">@livre.Description</p>
+                            </div>
+                            <div class="card-footer">
+                                <a href="@Url.Action("Details", "Livres", new { id = livre.LivreId })" class="btn btn-primary">View Details</a>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-footer">
-                        <a href="@Url.Action("Details", "Livres", new { id = livre.LivreId })" class="btn btn-primary">View Details</a>
-                    </div>
-                </div>
+                }
             </div>
-        }
+        </div>
     </div>
 </div>

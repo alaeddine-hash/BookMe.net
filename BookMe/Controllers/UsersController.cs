@@ -6,14 +6,15 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using BookMe.Models;
+using BookMe.Data;
 
 namespace BookMe.Controllers
 {
     public class UsersController : Controller
     {
-        private readonly AppDbContext _context;
+        private readonly BookMeContext _context;
 
-        public UsersController(AppDbContext context)
+        public UsersController(BookMeContext context)
         {
             _context = context;
         }
@@ -27,7 +28,7 @@ namespace BookMe.Controllers
         }
 
         // GET: Users/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(string? id)
         {
             if (id == null || _context.Users == null)
             {
@@ -35,7 +36,7 @@ namespace BookMe.Controllers
             }
 
             var user = await _context.Users
-                .FirstOrDefaultAsync(m => m.UserId == id);
+                .FirstOrDefaultAsync(m => m.Id == id);
             if (user == null)
             {
                 return NotFound();
@@ -87,9 +88,9 @@ namespace BookMe.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("UserId,UserName,Password,Email,PhoneNumber,Role")] User user)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,UserName,Password,Email,PhoneNumber,Role")] User user)
         {
-            if (id != user.UserId)
+            if (id != user.Id)
             {
                 return NotFound();
             }
@@ -103,7 +104,7 @@ namespace BookMe.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!UserExists(user.UserId))
+                    if (!UserExists(user.Id))
                     {
                         return NotFound();
                     }
@@ -117,8 +118,13 @@ namespace BookMe.Controllers
             return View(user);
         }
 
+        private bool UserExists(int id)
+        {
+            throw new NotImplementedException();
+        }
+
         // GET: Users/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(string? id)
         {
             if (id == null || _context.Users == null)
             {
@@ -126,7 +132,7 @@ namespace BookMe.Controllers
             }
 
             var user = await _context.Users
-                .FirstOrDefaultAsync(m => m.UserId == id);
+                .FirstOrDefaultAsync(m => m.Id == id);
             if (user == null)
             {
                 return NotFound();
@@ -154,9 +160,9 @@ namespace BookMe.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private bool UserExists(int id)
+        private bool UserExists(string id)
         {
-          return (_context.Users?.Any(e => e.UserId == id)).GetValueOrDefault();
+          return (_context.Users?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }

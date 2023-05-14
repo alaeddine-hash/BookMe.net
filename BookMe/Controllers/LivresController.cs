@@ -6,29 +6,43 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using BookMe.Models;
+using BookMe.Data;
 
 namespace BookMe.Controllers
 {
     public class LivresController : Controller
     {
-        private readonly AppDbContext _context;
+        private readonly BookMeContext _context;
 
-        public LivresController(AppDbContext context)
+        public LivresController(BookMeContext context)
         {
             _context = context;
         }
 
         // GET: Livres
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? themeId)
         {
-            var livres = _context.Livres
-                .Include(l => l.AuteurLivres!)
-                .ThenInclude(al => al!.Auteur)
-                .Include(l => l.LivreThemes)
-                .ThenInclude(lt => lt!.Theme);
+            // Load all Themes for the sidebar.
+            ViewBag.Themes = await _context.Themes.ToListAsync();
 
-            return View(await livres.ToListAsync());
+            // Prepare a query to load all Livres and their associated AuteurLivres, Auteurs, LivreThemes, and Themes.
+            var query = _context.Livres
+                .Include(l => l.AuteurLivres)
+                .ThenInclude(al => al.Auteur)
+                .Include(l => l.LivreThemes)
+                .ThenInclude(lt => lt.Theme)
+                .AsQueryable();  // Use AsQueryable to allow further modification of the query.
+
+            // If a ThemeId was provided, filter the Livres by this ThemeId.
+            if (themeId != null)
+            {
+                query = query.Where(l => l.LivreThemes.Any(lt => lt.ThemeId == themeId));
+            }
+
+            // Execute the query and return the result to the view.
+            return View(await query.ToListAsync());
         }
+
 
 
         // GET: Livres/Details/5
@@ -136,8 +150,8 @@ namespace BookMe.Controllers
             }
 
             var livre = await _context.Livres
-                .Include(l => l.AuteurLivres ?? new List<AuteurLivre>())
-                .Include(l => l.LivreThemes ?? new List<LivreTheme>())
+                .Include(l => l.AuteurLivres )
+                .Include(l => l.LivreThemes )
                 .FirstOrDefaultAsync(l => l.LivreId == id);
             if (livre == null)
             {

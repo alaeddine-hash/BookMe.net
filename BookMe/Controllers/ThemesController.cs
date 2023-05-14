@@ -6,14 +6,15 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using BookMe.Models;
+using BookMe.Data;
 
 namespace BookMe.Controllers
 {
     public class ThemesController : Controller
     {
-        private readonly AppDbContext _context;
+        private readonly BookMeContext _context;
 
-        public ThemesController(AppDbContext context)
+        public ThemesController(BookMeContext context)
         {
             _context = context;
         }

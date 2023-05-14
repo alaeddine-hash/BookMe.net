@@ -1,4 +1,5 @@
-﻿using BookMe.Models;
+﻿using BookMe.Data;
+using BookMe.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
@@ -8,24 +9,32 @@ namespace BookMe.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly AppDbContext _context;
+        private readonly BookMeContext _context;
 
-        public HomeController(ILogger<HomeController> logger, AppDbContext context)
+        public HomeController(ILogger<HomeController> logger, BookMeContext context)
         {
             _logger = logger;
             _context = context;
         }
-            public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index()
+        {
+            var viewModel = new LivreThemeViewModel
             {
-                var livres = _context.Livres
-                    .Include(l => l.AuteurLivres!)
-                    .ThenInclude(al => al!.Auteur)
+                Livres = await _context.Livres
+                    .Include(l => l.AuteurLivres)
+                    .ThenInclude(al => al.Auteur)
                     .Include(l => l.LivreThemes)
-                    .ThenInclude(lt => lt!.Theme);
+                    .ThenInclude(lt => lt.Theme)
+                    .ToListAsync(),
 
-                return View(await livres.ToListAsync());
-            }
-        
+                Themes = await _context.Themes.ToListAsync()
+            };
+
+            return View(viewModel);
+        }
+
+
+
 
         public IActionResult Privacy()
         {
@@ -36,6 +45,12 @@ namespace BookMe.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        public async Task<IActionResult> Themes()
+        {
+            var themes = await _context.Themes.ToListAsync();
+            return View(themes);
         }
     }
 }
